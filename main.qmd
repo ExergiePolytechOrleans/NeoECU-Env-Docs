@@ -170,7 +170,7 @@ Install west:
 uv pip install west
 ```
 
-Initialise workspace:
+Initialize workspace:
 
 ```bash
 west init ~/zephyrproject
@@ -191,16 +191,32 @@ uv pip install -r zephyr/scripts/requirements.txt
 
 If errors occur, install missing packages and re-run until successful.
 
+```{=typst}
+#pagebreak()
+```
 Install SDK:
 
 ```bash
 cd ~/zephyrproject/zephyr
 west sdk install
 ```
-Add the ZEPHYR_BASE variable to your .bashrc:
+Add the ZEPHYR_BASE variable to your .bashrc (or equivalent):
 ```bash
 export ZEPHYR_BASE=$HOME/zephyrproject/zephyr
 ```
+Check your .bashrc for a line along these lines:
+```bash
+export ZEPHYR_SDK_INSTALL_DIR=...
+```
+If is doesn't exist, firstly check the SDK version installed:
+```bash
+cd && ls | grep "zephyr-sdk"
+```
+Then take this and add the following to your .bashrc (or equivalent):
+```bash
+export ZEPHYR_SDK_INSTALL_DIR=$HOME/zephyr-sdk-1.0.0
+```
+Making sure that the x.x.x matches the version you have installed.
 
 ```{=typst}
 #pagebreak()
@@ -220,13 +236,13 @@ Run the setup binary:
 ```bash
 ./SetupSTM32CubeMX-*
 ```
-Add the install directory to your path, ie for bash add the following to `.bashrc`:
+Add the install directory to your path, add this line to your .bashrc (or equivalent):
 ```bash
 export PATH=$PATH:$HOME/STM32CubeMX
 ```
 It can take a few minutes for the application to start for the first time.
 
-Then open the 'Install or remove embedded software pacakges' window:
+Then open the 'Install or remove embedded software packages' window:
 
 ![STM32CubeMX Home Screen](img/cubemx_home.png){width=95%}
 
@@ -302,6 +318,8 @@ Start by checking dependencies:
 ```bash
 neoecu envcheck
 ```
+It is normal for west to fail at this stage.
+
 Then init the tooling system:
 ```bash
 neoecu init
@@ -310,14 +328,14 @@ You can now test build the demo project:
 ```bash
 neoecu build --debug --clean
 ```
-If this succeeds then your build environement is set up correctly!
+If this succeeds then your build environment is set up correctly!
 
 ```{=typst}
 #pagebreak()
 ```
 
 # NeoECU Tooling Overview
-The NeoECU tooling harmonizes the STM32 and Zephyr environements into one set of easy to use commands. It currently supports the following commands:
+The NeoECU tooling harmonizes the STM32 and Zephyr environments into one set of easy to use commands. It currently supports the following commands:
 ```bash
 neoecu envcheck
 neoecu init
@@ -325,7 +343,7 @@ neoecu build
 neoecu clean
 ```
 ## envcheck
-The environement checker is a simple tool that checks that all the required tools and dependencies are installed and accessible from your path.
+The environment checker is a simple tool that checks that all the required tools and dependencies are installed and accessible from your path.
 
 ## init
 The init command installs all the required python dependencies for west and initializes the cmake build environment for the STM32 side of the project.
