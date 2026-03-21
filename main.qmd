@@ -15,7 +15,7 @@ toc: true
 ```{=typst}
 #set page(
   header: align(right)[
-    Version 0.1.0
+    Version 0.1.1
   ],
   numbering: "1",
 )
@@ -38,13 +38,13 @@ Core responsibilities:
 
 Because of this separation:
 
-- M7 code must prioritise reliability and determinism  
+- M7 code must prioritize reliability and determinism  
 - M4 code can tolerate higher latency and complexity  
 
 Selected tools:
 
 - **M7 core**
-  - STM32CubeMX — MCU initialisation code generation
+  - STM32CubeMX — MCU initialization code generation
   - FreeRTOS — Lightweight task scheduling
   - STM32 HAL — Hardware abstraction layer
 
