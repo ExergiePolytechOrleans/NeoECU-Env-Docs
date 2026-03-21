@@ -1,0 +1,351 @@
+---
+title: "NeoECU Development Environment"
+author:
+  - name: Hector van der Aa
+    email: hector@h3cx.dev
+date: today
+date-format: long
+format: 
+  typst:
+    mainfont: Inter
+    codefont: "JetBrains Mono" 
+    papersize: a4
+toc: true
+---
+```{=typst}
+#set page(
+  header: align(right)[
+    Version 0.1.0
+  ],
+  numbering: "1",
+)
+```
+
+```{=typst}
+#pagebreak()
+```
+
+# Background
+
+This document describes the setup and usage of the development and build environment for the NeoECU project.
+
+NeoECU uses an AMP (Asymmetrical Multiprocessing) architecture. Both cores of the STM32H747 are used for different tasks and run different software stacks.
+
+Core responsibilities:
+
+- **M7 core** — Real-time, safety-critical engine control (e.g. spark timing, ignition)
+- **M4 core** — Telemetry, logging, and user interface
+
+Because of this separation:
+
+- M7 code must prioritise reliability and determinism  
+- M4 code can tolerate higher latency and complexity  
+
+Selected tools:
+
+- **M7 core**
+  - STM32CubeMX — MCU initialisation code generation
+  - FreeRTOS — Lightweight task scheduling
+  - STM32 HAL — Hardware abstraction layer
+
+- **M4 core**
+  - Zephyr RTOS — Microkernel with full I/O stack
+
+Firmware flashing is performed over JTAG using a SEGGER J-Link.
+
+> **Note**  
+> This environment is designed for Linux. Windows and macOS may work, but are not officially supported.
+
+```{=typst}
+#pagebreak()
+```
+
+# Setup
+
+## Prerequisites
+
+## uv (Python Tooling)
+
+Install `uv`:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Restart your terminal, then verify installation:
+
+```bash
+which uv && uv --version
+```
+
+Expected output (example):
+
+```text
+/home/user/.local/bin/uv
+uv 0.10.x
+```
+
+Install Python 3.14:
+
+```bash
+uv python install 3.14
+```
+
+Documentation: [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/) 
+
+```{=typst}
+#pagebreak()
+```
+
+## Build Tools
+
+Install CMake and Ninja:
+
+```bash
+# Arch
+sudo pacman -S cmake ninja
+
+# Debian
+sudo apt update
+sudo apt install cmake ninja-build
+
+# Fedora
+sudo dnf install cmake ninja-build
+```
+
+Verify installation:
+
+```bash
+which cmake && cmake --version
+which ninja && ninja --version
+```
+
+## Build Dependencies
+
+Install ARM toolchain:
+
+```bash
+# Arch
+sudo pacman -S \
+  arm-none-eabi-gcc \
+  arm-none-eabi-newlib \
+  arm-none-eabi-binutils\
+
+# Debian
+sudo apt update
+sudo apt install \
+  gcc-arm-none-eabi \
+  libnewlib-arm-none-eabi \
+  binutils-arm-none-eabi\
+
+# Fedora
+sudo dnf install \
+  arm-none-eabi-gcc-cs \
+  arm-none-eabi-newlib \
+  arm-none-eabi-binutils\
+```
+
+```{=typst}
+#pagebreak()
+```
+## Zephyr
+
+Create workspace:
+
+```bash
+mkdir ~/zephyrproject
+cd ~/zephyrproject
+```
+
+Create virtual environment:
+
+```bash
+uv venv --python 3.14
+source .venv/bin/activate
+```
+
+Install west:
+
+```bash
+uv pip install west
+```
+
+Initialise workspace:
+
+```bash
+west init ~/zephyrproject
+cd ~/zephyrproject
+west update
+```
+Export environment:
+
+```bash
+west zephyr-export
+```
+
+Install dependencies:
+
+```bash
+uv pip install -r zephyr/scripts/requirements.txt
+```
+
+If errors occur, install missing packages and re-run until successful.
+
+Install SDK:
+
+```bash
+cd ~/zephyrproject/zephyr
+west sdk install
+```
+Add the ZEPHYR_BASE variable to your .bashrc:
+```bash
+export ZEPHYR_BASE=$HOME/zephyrproject/zephyr
+```
+
+```{=typst}
+#pagebreak()
+```
+
+## STM32CubeMX
+
+Download STM32CubeMX from  
+[https://st.com/en/development-tools/stm32cubemx.html](https://st.com/en/development-tools/stm32cubemx.html)
+
+In your downloads, unzip the package:
+```bash
+unzip stm32cubemx-lin-*.zip -d STM32CubeMxSetup
+cd STM32CubeMxSetup
+```
+Run the setup binary:
+```bash
+./SetupSTM32CubeMX-*
+```
+Add the install directory to your path, ie for bash add the following to `.bashrc`:
+```bash
+export PATH=$PATH:$HOME/STM32CubeMX
+```
+It can take a few minutes for the application to start for the first time.
+
+Then open the 'Install or remove embedded software pacakges' window:
+
+![STM32CubeMX Home Screen](img/cubemx_home.png){width=95%}
+
+```{=typst}
+#pagebreak()
+```
+
+In the 'STM32Cube MCU Packages' tab, find the 'STM32H7' entry and install the latest version:
+
+![STM32CubeMX Install MCU Package](img/cubemx_install_h7.png){width=80%}
+
+## JLink Tools
+Download the '*J-Link Software and Documentation Package*' from  
+[https://www.segger.com/products/debug-probes/j-link](https://www.segger.com/products/debug-probes/j-link)
+
+From your downloads, install the package:
+```bash
+# Arch
+sudo mkdir /opt/SEGGER/JLink
+sudo tar -xvzf JLink_Linux_*_x86_64.tgz -C target --strip-components=1
+
+# Debian
+sudo apt install ./JLink_Linux_*_x86_64.deb
+
+# Fedora
+sudo dnf install ./JLink_Linux_*_x86_64.rpm
+```
+If JLink tooling was installed with the tar bundle, the following directory needs to be added to your path:
+```bash 
+export PATH=$PATH:/opt/SEGGER/JLink
+```
+```{=typst}
+#pagebreak()
+```
+
+# Repository Setup
+
+## Cloning
+
+Clone the repository:
+
+```bash
+git clone gitea@git.h3cx.dev:Exergie/BuildDemoNeoECU.git
+cd BuildDemoNeoECU
+```
+
+## Virtual Environment
+
+Create a project-specific virtual environment:
+
+```bash
+uv venv --python 3.14
+```
+
+Activate it:
+
+```bash
+source .venv/bin/activate
+```
+
+This step must be repeated for each new terminal session.
+
+## NeoECU Tooling Setup
+Install the neoecu cli tooling:
+```bash
+uv pip install "git+https://git.h3cx.dev/h3cx/NeoECU-Tooling.git"
+```
+Help can be found by running:
+```bash
+neoecu
+```
+Start by checking dependencies:
+```bash
+neoecu envcheck
+```
+Then init the tooling system:
+```bash
+neoecu init
+```
+You can now test build the demo project:
+```bash
+neoecu build --debug --clean
+```
+If this succeeds then your build environement is set up correctly!
+
+```{=typst}
+#pagebreak()
+```
+
+# NeoECU Tooling Overview
+The NeoECU tooling harmonizes the STM32 and Zephyr environements into one set of easy to use commands. It currently supports the following commands:
+```bash
+neoecu envcheck
+neoecu init
+neoecu build
+neoecu clean
+```
+## envcheck
+The environement checker is a simple tool that checks that all the required tools and dependencies are installed and accessible from your path.
+
+## init
+The init command installs all the required python dependencies for west and initializes the cmake build environment for the STM32 side of the project.
+
+## build 
+The build command builds both sides of the project, STM32 and Zephyr. It defaults to release mode when run without arguments.
+
+Multiple arguments can be passed as follows:
+```bash
+--release
+# or
+--debug
+```
+```bash
+--clean
+```
+For example to build clean in debug mode:
+```bash
+neoecu build --debug --clean
+```
+
+## clean
+The clean command cleans up all build directories in the project
