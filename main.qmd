@@ -15,7 +15,7 @@ toc: true
 ```{=typst}
 #set page(
   header: align(right)[
-    Version 0.1.1
+    Version 0.2.0
   ],
   numbering: "1",
 )
@@ -129,20 +129,20 @@ Install ARM toolchain:
 sudo pacman -S \
   arm-none-eabi-gcc \
   arm-none-eabi-newlib \
-  arm-none-eabi-binutils\
+  arm-none-eabi-binutils
 
 # Debian
 sudo apt update
 sudo apt install \
   gcc-arm-none-eabi \
   libnewlib-arm-none-eabi \
-  binutils-arm-none-eabi\
+  binutils-arm-none-eabi
 
 # Fedora
 sudo dnf install \
   arm-none-eabi-gcc-cs \
   arm-none-eabi-newlib \
-  arm-none-eabi-binutils\
+  arm-none-eabi-binutils
 ```
 
 ```{=typst}
@@ -328,7 +328,20 @@ You can now test build the demo project:
 ```bash
 neoecu build --debug --clean
 ```
-If this succeeds then your build environment is set up correctly!
+
+```{=typst}
+#pagebreak()
+```
+Finally you can flash it to a board, this demo targets an Arduino Giga R1.  
+
+> **WARNING**  
+> Flashing this **WILL** wipe the Arduino bootloader from the board and make it no longer usable with the Arduino IDE. It is possible to recover the bootloader after the fact but try and use a board that has already been wiped rather than one that hasn't.
+
+```bash
+neoecu flash
+```
+If this succeeds then your build environment is set up correctly! You should see a Green and Blue LED flashing on the board, if they don't flash try and press the `RST` button.
+
 
 ```{=typst}
 #pagebreak()
@@ -340,6 +353,7 @@ The NeoECU tooling harmonizes the STM32 and Zephyr environments into one set of 
 neoecu envcheck
 neoecu init
 neoecu build
+neoecu flash
 neoecu clean
 ```
 ## envcheck
@@ -364,6 +378,8 @@ For example to build clean in debug mode:
 ```bash
 neoecu build --debug --clean
 ```
+## flash
+The flash command will flash the built binaries onto a board connected over JLink. It currently doesn't support per core flashing to it will flash both binaries at once.
 
 ## clean
 The clean command cleans up all build directories in the project
