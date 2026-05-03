@@ -19,7 +19,7 @@ toc: true
 ```{=typst}
 #set page(
   header: align(right)[
-    Version 0.2.1
+    Version 0.2.2
   ],
   numbering: "1",
 )
