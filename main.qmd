@@ -3,6 +3,7 @@ title: "NeoECU Development Environment"
 author:
   - name: Hector van der Aa
     email: hector@h3cx.dev
+    affiliation: Version 0.2.1
 date: today
 date-format: long
 format: 
@@ -15,7 +16,7 @@ toc: true
 ```{=typst}
 #set page(
   header: align(right)[
-    Version 0.2.0
+    Version 0.2.1
   ],
   numbering: "1",
 )
@@ -214,7 +215,7 @@ cd && ls | grep "zephyr-sdk"
 ```
 Then take this and add the following to your .bashrc (or equivalent):
 ```bash
-export ZEPHYR_SDK_INSTALL_DIR=$HOME/zephyr-sdk-1.0.0
+export ZEPHYR_SDK_INSTALL_DIR=$HOME/zephyr-sdk-x.x.x
 ```
 Making sure that the x.x.x matches the version you have installed.
 
@@ -261,8 +262,8 @@ Download the '*J-Link Software and Documentation Package*' from
 From your downloads, install the package:
 ```bash
 # Arch
-sudo mkdir /opt/SEGGER/JLink
-sudo tar -xvzf JLink_Linux_*_x86_64.tgz -C target --strip-components=1
+sudo mkdir -p /opt/SEGGER/JLink
+sudo tar -xvzf JLink_Linux_*_x86_64.tgz -C /opt/SEGGER/JLink --strip-components=1
 
 # Debian
 sudo apt install ./JLink_Linux_*_x86_64.deb
@@ -306,9 +307,10 @@ source .venv/bin/activate
 This step must be repeated for each new terminal session.
 
 ## NeoECU Tooling Setup
-Install the neoecu cli tooling:
+Install the neoecu cli tooling and west for Zephyr:
 ```bash
 uv pip install "git+https://git.h3cx.dev/h3cx/NeoECU-Tooling.git"
+uv pip install west
 ```
 Help can be found by running:
 ```bash
@@ -368,7 +370,7 @@ The build command builds both sides of the project, STM32 and Zephyr. It default
 Multiple arguments can be passed as follows:
 ```bash
 --release
-# or
+#or
 --debug
 ```
 ```bash
@@ -383,3 +385,16 @@ The flash command will flash the built binaries onto a board connected over JLin
 
 ## clean
 The clean command cleans up all build directories in the project
+
+#pagebreak()
+
+# Updates
+## Version 0.2.0
+Complete instructions with completely neoecu tooling
+
+## Version 0.2.1
+Fixed errors:
+
+- Incoherent instructions in export line for Zephyr SDK with x.x.x not appearing
+- Incorrect mkdir command to create the `/opt/SEGGER/Jlink` directory, updated with -p flag
+- Incorrect command for extracting JLink tarball, updated target to correct directory
