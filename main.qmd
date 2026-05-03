@@ -3,7 +3,7 @@ title: "NeoECU Development Environment"
 author:
   - name: Hector van der Aa
     email: hector@h3cx.dev
-    affiliation: Version 0.2.1
+    affiliation: Version 0.2.2
 date: today
 date-format: long
 format: 
@@ -11,6 +11,9 @@ format:
     mainfont: Inter
     codefont: "JetBrains Mono" 
     papersize: a4
+    margin:
+      x: 2cm
+      y: 2cm
 toc: true
 ---
 ```{=typst}
@@ -351,6 +354,12 @@ If this succeeds then your build environment is set up correctly! You should see
 
 # NeoECU Tooling Overview
 The NeoECU tooling harmonizes the STM32 and Zephyr environments into one set of easy to use commands. It currently supports the following commands:
+
+::: {.callout-important}
+For complete, up-to-date documentation, please refer to the official git repo:  
+[https://git.h3cx.dev/Exergie/NeoECU-Tooling](https://git.h3cx.dev/Exergie/NeoECU-Tooling)
+:::
+
 ```bash
 neoecu envcheck
 neoecu init
@@ -365,28 +374,35 @@ The environment checker is a simple tool that checks that all the required tools
 The init command installs all the required python dependencies for west and initializes the cmake build environment for the STM32 side of the project.
 
 ## build 
-The build command builds both sides of the project, STM32 and Zephyr. It defaults to release mode when run without arguments.
+The build command builds both sides of the project (if configured), STM32 and Zephyr. It defaults to release mode and both cores when run without arguments.
 
 Multiple arguments can be passed as follows:
 ```bash
 --release
-#or
 --debug
-```
-```bash
 --clean
+--CM7
+--CM4
 ```
 For example to build clean in debug mode:
 ```bash
 neoecu build --debug --clean
 ```
 ## flash
-The flash command will flash the built binaries onto a board connected over JLink. It currently doesn't support per core flashing to it will flash both binaries at once.
+The flash command will flash the built binaries onto a board connected over JLink. Single core flashing is done using the same arguments as build:
+```bash
+--CM7
+--CM4
+```
+If no arguments are provided it defaults to flashing whatever is configured in `neoecu.toml`
 
 ## clean
 The clean command cleans up all build directories in the project
 
+
+```{=typst}
 #pagebreak()
+```
 
 # Updates
 ## Version 0.2.0
@@ -398,3 +414,6 @@ Fixed errors:
 - Incoherent instructions in export line for Zephyr SDK with x.x.x not appearing
 - Incorrect mkdir command to create the `/opt/SEGGER/Jlink` directory, updated with -p flag
 - Incorrect command for extracting JLink tarball, updated target to correct directory
+
+## Version 0.2.2
+Updated neoecu documentation to match neoeco v2.1.0
